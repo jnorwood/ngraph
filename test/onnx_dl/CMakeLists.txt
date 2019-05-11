@@ -3,7 +3,7 @@ include(FetchContent)
 include(ExternalProject)
 set(CMAKE_BUILD_TYPE Debug)
 
-option(ENABLE_TESTS "Enable tests" OFF)
+option(ENABLE_TESTS "Enable tests" ON)
 if (${ENABLE_TESTS})
     enable_testing()
 endif()
@@ -11,6 +11,7 @@ set(FETCHCONTENT_QUIET OFF)
 
 # Source directories
 set(ONNX_MODELS_DIR ${CMAKE_CURRENT_BINARY_DIR}/models_onnx)
+set(ONNX_EXEC_DIR ${CMAKE_CURRENT_BINARY_DIR}/..)
 
 
 	
@@ -103,6 +104,17 @@ FetchContent_Declare(
 FetchContent_GetProperties(resnet50)
 if(NOT resnet50_POPULATED)
   FetchContent_Populate(resnet50)
+endif()
+
+FetchContent_Declare(
+  resnet50_opset_8
+  URL https://s3.amazonaws.com/download.onnx/models/opset_8/resnet50.tar.gz
+  SOURCE_DIR ${ONNX_MODELS_DIR}/resnet50_opset_8
+)
+
+FetchContent_GetProperties(resnet50_opset_8)
+if(NOT resnet50_opset_8_POPULATED)
+  FetchContent_Populate(resnet50_opset_8)
 endif()
 
 
@@ -331,188 +343,108 @@ if(NOT vgg19-bn_POPULATED)
   FetchContent_Populate(vgg19-bn)
 endif()
 
-if (${ENABLE_TESTS})
-
 
 add_test (NAME bvlc_alexnet
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/bvlc_alexnet/model.onnx --output-directory  ${ONNX_MODELS_DIR}/bvlc_alexnet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_alexnet/model.onnx bvlc_alexnet_out
 )
-add_test (NAME validate_bvlc_alexnet
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/bvlc_alexnet_out/model/graph.nnef
-	)
 
 add_test (NAME bvlc_googlenet
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/bvlc_googlenet/model.onnx --output-directory  ${ONNX_MODELS_DIR}/bvlc_googlenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_googlenet/model.onnx bvlc_googlenet_out
 )
-add_test (NAME validate_bvlc_googlenet
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/bvlc_googlenet_out/model/graph.nnef
-	)
-
 add_test (NAME bvlc_reference_caffenet
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/bvlc_reference_caffenet/model.onnx --output-directory  ${ONNX_MODELS_DIR}/bvlc_reference_caffenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_caffenet/model.onnx bvlc_reference_caffenet_out
 )
-add_test (NAME validate_bvlc_reference_caffenet
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/bvlc_reference_caffenet_out/model/graph.nnef
-	)
 add_test (NAME bvlc_reference_rcnn_ilsvrc13
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13/model.onnx --output-directory  ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13/model.onnx bvlc_reference_rcnn_ilsvrc13_out
 )
-add_test (NAME validate_bvlc_reference_rcnn_ilsvrc13
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13_out/model/graph.nnef
-	)
 add_test (NAME densenet121
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/densenet121/model.onnx --output-directory  ${ONNX_MODELS_DIR}/densenet121_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/densenet121/model.onnx densenet121_out
 )
-add_test (NAME validate_densenet121
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/densenet121_out/model/graph.nnef
-	)
 
 add_test (NAME inception_v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/inception_v1/model.onnx --output-directory  ${ONNX_MODELS_DIR}/inception_v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v1/model.onnx inception_v1_out
 )
-add_test (NAME validate_inception_v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/inception_v1_out/model/graph.nnef
-	)
 add_test (NAME inception_v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/inception_v2/model.onnx --output-directory  ${ONNX_MODELS_DIR}/inception_v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v2/model.onnx inception_v2_out
 )
-add_test (NAME validate_inception_v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/inception_v2_out/model/graph.nnef
-	)
 add_test (NAME resnet50
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet50/model.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet50_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50/model.onnx resnet50_out
 )
-add_test (NAME validate_resnet50
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet50_out/model/graph.nnef
-	)
+
+add_test (NAME resnet50_opset_8
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50_opset_8/model.onnx resnet50_opset_8_out
+)
+
 add_test (NAME shufflenet
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/shufflenet/model.onnx --output-directory  ${ONNX_MODELS_DIR}/shufflenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/shufflenet/model.onnx shufflenet_out
 )
-add_test (NAME validate_shufflenet
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/shufflenet_out/model/graph.nnef
-	)
 add_test (NAME vgg19
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/vgg19/model.onnx --output-directory  ${ONNX_MODELS_DIR}/vgg19_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19/model.onnx vgg19_out
 )
-add_test (NAME validate_vgg19
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/vgg19_out/model/graph.nnef
-	)
 add_test (NAME zfnet512
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/zfnet512/model.onnx --output-directory  ${ONNX_MODELS_DIR}/zfnet512_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/zfnet512/model.onnx zfnet512_out
 )
-add_test (NAME validate_zfnet512
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/zfnet512_out/model/graph.nnef
-	)
 
 add_test (NAME mobilenetv2-1.0
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/mobilenetv2-1.0/mobilenetv2-1.0.onnx --output-directory  ${ONNX_MODELS_DIR}/mobilenetv2-1.0_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/mobilenetv2-1.0/mobilenetv2-1.0.onnx mobilenetv2-1.0_out
 )
-add_test (NAME validate_mobilenetv2-1.0
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/mobilenetv2-1.0_out/model/graph.nnef
-	)
 
 add_test (NAME resnet18v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet18v1/resnet18v1/resnet18v1.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet18v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v1/resnet18v1/resnet18v1.onnx resnet18v1_out
 )
-add_test (NAME validate_resnet18v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet18v1_out/model/graph.nnef
-	)
 
 add_test (NAME resnet34v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet34v1/resnet34v1/resnet34v1.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet34v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v1/resnet34v1/resnet34v1.onnx resnet34v1_out
 )
-add_test (NAME validate_resnet34v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet34v1_out/model/graph.nnef
-	)
+
 
 add_test (NAME resnet50v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet50v1/resnet50v1/resnet50v1.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet50v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v1/resnet50v1/resnet50v1.onnx resnet50v1_out
 )
-add_test (NAME validate_resnet50v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet50v1_out/model/graph.nnef
-	)
 
 add_test (NAME resnet101v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet101v1/resnet101v1/resnet101v1.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet101v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v1/resnet101v1/resnet101v1.onnx resnet101v1_out
 )
-add_test (NAME validate_resnet101v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet101v1_out/model/graph.nnef
-	)
 add_test (NAME resnet152v1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet152v1/resnet152v1/resnet152v1.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet152v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v1/resnet152v1/resnet152v1.onnx resnet152v1_out
 )
-add_test (NAME validate_resnet152v1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet152v1_out/model/graph.nnef
-	)
 
 add_test (NAME resnet18v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet18v2/resnet18v2.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet18v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v2/resnet18v2.onnx resnet18v2_out
 )
-add_test (NAME validate_resnet18v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet18v2_out/model/graph.nnef
-	)
 
 add_test (NAME resnet34v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet34v2/resnet34v2.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet34v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v2/resnet34v2.onnx resnet34v2_out
 )
-add_test (NAME validate_resnet34v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet34v2_out/model/graph.nnef
-	)
 
 
 add_test (NAME resnet50v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet50v2/resnet50v2.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet50v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v2/resnet50v2.onnx resnet50v2_out
 )
-add_test (NAME validate_resnet50v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet50v2_out/model/graph.nnef
-	)
 
 
 add_test (NAME resnet101v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet101v2/resnet101v2.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet101v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v2/resnet101v2.onnx resnet101v2_out
 )
-add_test (NAME validate_resnet101v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet101v2_out/model/graph.nnef
-	)
 
 add_test (NAME resnet152v2
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/resnet152v2/resnet152v2.onnx --output-directory  ${ONNX_MODELS_DIR}/resnet152v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v2/resnet152v2.onnx resnet152v2_out
 )
-add_test (NAME validate_resnet152v2
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/resnet152v2_out/model/graph.nnef
-	)
 
 
 add_test (NAME squeezenet1.1
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/squeezenet1.1/squeezenet1.1.onnx --output-directory  ${ONNX_MODELS_DIR}/squeezenet1.1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/squeezenet1.1/squeezenet1.1.onnx squeezenet1.1_out
 )
-add_test (NAME validate_squeezenet1.1
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/squeezenet1.1_out/model/graph.nnef
-	)
-
 add_test (NAME vgg16
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/vgg16/vgg16/vgg16.onnx --output-directory  ${ONNX_MODELS_DIR}/vgg16_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16/vgg16/vgg16.onnx vgg16_out
 )
-add_test (NAME validate_vgg16
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/vgg16_out/model/graph.nnef
-	)
 add_test (NAME vgg16-bn
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/vgg16-bn/vgg16-bn/vgg16-bn.onnx --output-directory  ${ONNX_MODELS_DIR}/vgg16-bn_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16-bn/vgg16-bn/vgg16-bn.onnx vgg16-bn_out
 )
-add_test (NAME validate_vgg16-bn
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/vgg16-bn_out/model/graph.nnef
-	)
 
 add_test (NAME vgg19b
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/vgg19b/vgg19/vgg19.onnx --output-directory  ${ONNX_MODELS_DIR}/vgg19b_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19b/vgg19/vgg19.onnx vgg19b_out
 )
-add_test (NAME validate_vgg19b
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/vgg19b_out/model/graph.nnef
-	)
 add_test (NAME vgg19-bn
-	COMMAND ${NNEF_TOOLS_DIR}/convert.py --input-framework onnx --output-framework nnef --input-model  ${ONNX_MODELS_DIR}/vgg19-bn/vgg19-bn//vgg19-bn.onnx --output-directory  ${ONNX_MODELS_DIR}/vgg19-bn_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19-bn/vgg19-bn//vgg19-bn.onnx vgg19-bn_out
 )
-add_test (NAME validate_vgg19-bn
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/nnef-validator ${ONNX_MODELS_DIR}/vgg19-bn_out/model/graph.nnef
-	)
-endif()

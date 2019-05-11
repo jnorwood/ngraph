@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
+cmake_minimum_required (VERSION 3.13)
+option(ENABLE_TESTS "Enable tests" ON)
+if (${ENABLE_TESTS})
+    enable_testing()
+endif()
 
 if(LINUX)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -180,6 +185,7 @@ if (NGRAPH_ONNX_IMPORT_ENABLE)
     if (NGRAPH_ONNXIFI_ENABLE)
         list(APPEND SRC onnx/onnxifi.cpp onnx/onnxifi_span.cpp)
     endif()
+	enable_testing()
 	add_subdirectory(onnx_dl)
 endif()
 
@@ -299,3 +305,80 @@ add_custom_target(check
     style-check
     unit-test-check
 )
+
+
+
+########### tests using downloaded full onnx models. same options as above, but applied to onnx_dl_test target, remove gtest for now
+set(ONNX_DL_SRC
+    onnx_dl/onnx_dl_tst.cpp
+	)
+
+add_executable(onnx_dl_test ${ONNX_DL_SRC})
+
+target_include_directories(onnx_dl_test PRIVATE ".")
+
+
+target_link_libraries(onnx_dl_test PRIVATE ngraph_test_util)
+#target_link_libraries(onnx_dl_test PRIVATE ngraph libgtest)
+target_link_libraries(onnx_dl_test PRIVATE ngraph )
+
+if (NGRAPH_JSON_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE libjson)
+endif()
+if(NOT WIN32)
+    target_link_libraries(onnx_dl_test PRIVATE pthread)
+endif()
+target_link_libraries(onnx_dl_test PRIVATE ${CMAKE_DL_LIBS})
+
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
+    target_compile_options(onnx_dl_test PRIVATE -Wno-undef -Wno-reserved-id-macro)
+endif()
+
+if (NGRAPH_CPU_ENABLE)
+    # The INTERPRETER backend is required for convolution, and backwards unit tests
+    target_link_libraries(onnx_dl_test PRIVATE cpu_backend interpreter_backend)
+    target_link_libraries(onnx_dl_test PRIVATE libmkldnn)
+endif()
+
+if (NGRAPH_TOOLS_ENABLE)
+    get_property(NBENCH_PATH TARGET nbench PROPERTY BINARY_DIR)
+    set(NBENCH "${NBENCH_PATH}/nbench")
+    target_compile_definitions(onnx_dl_test PRIVATE NBENCH_PATH="${NBENCH}")
+    add_dependencies(onnx_dl_test nbench)
+endif()
+
+if (NGRAPH_PLAIDML_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE plaidml_backend)
+endif()
+
+if (NGRAPH_TBB_ENABLE)
+    target_compile_definitions(onnx_dl_test PRIVATE NGRAPH_TBB_ENABLE)
+endif()
+
+if (NGRAPH_HALIDE)
+    target_compile_definitions(onnx_dl_test PRIVATE "NGRAPH_HALIDE")
+endif()
+
+if (NGRAPH_INTERPRETER_ENABLE)
+    target_compile_definitions(onnx_dl_test PRIVATE NGRAPH_INTERPRETER_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE interpreter_backend)
+endif()
+
+if (NGRAPH_GPU_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE gpu_backend)
+endif()
+
+if (NGRAPH_NOP_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE nop_backend)
+endif()
+
+if (NGRAPH_GPUH_ENABLE)
+    target_link_libraries(onnx_dl_test PRIVATE gpuh_backend)
+endif()
+
+if (NGRAPH_ONNXIFI_ENABLE)
+    target_include_directories(onnx_dl_test SYSTEM PUBLIC ${ONNX_INCLUDE_DIR})
+    target_link_libraries(onnx_dl_test PRIVATE onnxifi-ngraph)
+endif()
+
+

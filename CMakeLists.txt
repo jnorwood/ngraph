@@ -14,7 +14,11 @@
 # limitations under the License.
 # ******************************************************************************
 
-cmake_minimum_required (VERSION 3.4)
+cmake_minimum_required (VERSION 3.13)
+option(ENABLE_TESTS "Enable tests" ON)
+if (${ENABLE_TESTS})
+    enable_testing()
+endif()
 
 # set directory where the custom finders live
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -520,6 +524,7 @@ message(STATUS "CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
 add_subdirectory(src)
 
 if (NGRAPH_UNIT_TEST_ENABLE)
+	enable_testing()
     add_subdirectory(test)
     message(STATUS "unit tests enabled")
 else()
