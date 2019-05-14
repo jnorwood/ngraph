@@ -48,12 +48,51 @@ int load_onnx(int argc, char** argv)
     auto function =
         onnx_import::import_onnx_model(argv[1]);
 
-    Inputs inputs{{1}, {2}, {3}};
-    Outputs expected_outputs{{6}};
-// BACKEND_NAME can be CPU or INTERPRETER
-//    Outputs outputs{execute(function, inputs, "CPU")};
-//	auto front = outputs.front();
+    Inputs inputs{{}};
+    auto parms = function->get_parameters();
+
+    int input_sz= parms.size();
+    if (input_sz == 0){
+         throw ngraph::ngraph_error("expecting input 0 is image");
+    }
+    // going to assume first element is the image input...   
+    auto image_type = parms.at(0)->get_element_type();
+    if (image_type != element::f32){
+        throw ngraph::ngraph_error("expecting fp32 image type");
+    }
+    auto image_shape =  parms.at(0)->get_shape();
+    int shape_dim = image_shape.size();
+    unsigned long image_size = 1;
+    for (int i = 0; i < shape_dim; i++){
+        image_size *= image_shape[i] ; 
+    }
+    inputs[0].assign(image_size,0.5);
+    //TODO load an image, from NDArray?
+
+    auto results = function->get_results();
+    int results_sz= results.size();
+    if (results_sz == 0){
+        throw ngraph::ngraph_error("expecting non-zero results size");
+    }
+    auto results_type = results.at(0)->get_element_type();
+    if (results_type != element::f32){
+        throw ngraph::ngraph_error("expecting fp32 results type");
+    }
+    auto results_shape =  results.at(0)->get_shape();
+    int results_dim = results_shape.size();
+    unsigned long results_size = 1;
+    for (int i = 0; i < results_dim; i++){
+        results_size *= results_shape[i] ; 
+    }
+    Outputs expected_outputs{{}};
+    expected_outputs[0].assign(results_size,0.5);
+    
+    // BACKEND_NAME can be CPU or INTERPRETER, but INTERPRETER IS ABOUT 100X SLOWER
+    Outputs outputs{execute(function, inputs, "CPU")};
+	auto front = outputs.front();
 	return 0;
+
+    // TODO  would need to expect a particular category selected by some threshold
     //EXPECT_TRUE(test::all_close_f(expected_outputs.front(), outputs.front()));
 }
 
