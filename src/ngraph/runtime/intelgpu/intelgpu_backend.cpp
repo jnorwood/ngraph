@@ -82,6 +82,7 @@
 #include "ngraph/op/fused/depth_to_space.hpp"
 #include "ngraph/op/fused/elu.hpp"
 #include "ngraph/op/fused/gemm.hpp"
+#include "ngraph/op/fused/grn.hpp"
 #include "ngraph/op/fused/group_conv.hpp"
 #include "ngraph/op/fused/hard_sigmoid.hpp"
 #include "ngraph/op/fused/mvn.hpp"
@@ -1249,7 +1250,7 @@ shared_ptr<runtime::Executable>
             do_universal_unary(topology,
                                op,
                                "max(" + zero_const + ", " + convert_to_type + "(input_var))",
-                               activation_relu);
+                               activation_relu_negative_slope);
             break;
         }
         case OP_TYPEID::Sigmoid:
@@ -2052,6 +2053,7 @@ shared_ptr<runtime::Executable>
         case OP_TYPEID::Gather:
         case OP_TYPEID::GatherND:
         case OP_TYPEID::GenerateMask:
+        case OP_TYPEID::GRN:
         case OP_TYPEID::HardSigmoid:
         case OP_TYPEID::MVN:
         case OP_TYPEID::Normalize:
@@ -2163,9 +2165,11 @@ bool runtime::intelgpu::IntelGPUBackend::is_supported_impl(const Node& node)
     case OP_TYPEID::DepthToSpace:
     case OP_TYPEID::Elu:
     case OP_TYPEID::Gemm:
+    case OP_TYPEID::GRN:
     case OP_TYPEID::MVN:
     case OP_TYPEID::Normalize:
     case OP_TYPEID::PRelu:
+    case OP_TYPEID::ScaleShift:
     case OP_TYPEID::SpaceToDepth:
     case OP_TYPEID::Squeeze: { return false;
     }
