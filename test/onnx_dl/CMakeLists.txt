@@ -67,6 +67,18 @@ FetchContent_Declare(
   SOURCE_DIR ${ONNX_MODELS_DIR}/densenet121
 )
 
+FetchContent_Declare(
+  images
+  GIT_REPOSITORY https://github.com/jnorwood/images.git
+  SOURCE_DIR ${ONNX_MODELS_DIR}/images
+)
+
+FetchContent_GetProperties(images)
+if(NOT images_POPULATED)
+  FetchContent_Populate(images)
+endif()
+
+
 FetchContent_GetProperties(densenet121)
 if(NOT densenet121_POPULATED)
   FetchContent_Populate(densenet121)
@@ -345,106 +357,106 @@ endif()
 
 
 add_test (NAME bvlc_alexnet
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_alexnet/model.onnx bvlc_alexnet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_alexnet/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME bvlc_googlenet
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_googlenet/model.onnx bvlc_googlenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_googlenet/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME bvlc_reference_caffenet
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_caffenet/model.onnx bvlc_reference_caffenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_caffenet/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME bvlc_reference_rcnn_ilsvrc13
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13/model.onnx bvlc_reference_rcnn_ilsvrc13_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/bvlc_reference_rcnn_ilsvrc13/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME densenet121
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/densenet121/model.onnx densenet121_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/densenet121/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME inception_v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v1/model.onnx inception_v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v1/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME inception_v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v2/model.onnx inception_v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/inception_v2/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME resnet50
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50/model.onnx resnet50_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet50_opset_8
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50_opset_8/model.onnx resnet50_opset_8_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50_opset_8/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME shufflenet
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/shufflenet/model.onnx shufflenet_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/shufflenet/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME vgg19
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19/model.onnx vgg19_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME zfnet512
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/zfnet512/model.onnx zfnet512_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/zfnet512/model.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME mobilenetv2-1.0
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/mobilenetv2-1.0/mobilenetv2-1.0.onnx mobilenetv2-1.0_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/mobilenetv2-1.0/mobilenetv2-1.0.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet18v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v1/resnet18v1/resnet18v1.onnx resnet18v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v1/resnet18v1/resnet18v1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet34v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v1/resnet34v1/resnet34v1.onnx resnet34v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v1/resnet34v1/resnet34v1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 
 add_test (NAME resnet50v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v1/resnet50v1/resnet50v1.onnx resnet50v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v1/resnet50v1/resnet50v1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet101v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v1/resnet101v1/resnet101v1.onnx resnet101v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v1/resnet101v1/resnet101v1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME resnet152v1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v1/resnet152v1/resnet152v1.onnx resnet152v1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v1/resnet152v1/resnet152v1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet18v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v2/resnet18v2.onnx resnet18v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet18v2/resnet18v2.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet34v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v2/resnet34v2.onnx resnet34v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet34v2/resnet34v2.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 
 add_test (NAME resnet50v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v2/resnet50v2.onnx resnet50v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet50v2/resnet50v2.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 
 add_test (NAME resnet101v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v2/resnet101v2.onnx resnet101v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet101v2/resnet101v2.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME resnet152v2
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v2/resnet152v2.onnx resnet152v2_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/resnet152v2/resnet152v2.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 
 add_test (NAME squeezenet1.1
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/squeezenet1.1/squeezenet1.1.onnx squeezenet1.1_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/squeezenet1.1/squeezenet1.1.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME vgg16
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16/vgg16/vgg16.onnx vgg16_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16/vgg16/vgg16.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME vgg16-bn
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16-bn/vgg16-bn/vgg16-bn.onnx vgg16-bn_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg16-bn/vgg16-bn/vgg16-bn.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 
 add_test (NAME vgg19b
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19b/vgg19/vgg19.onnx vgg19b_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19b/vgg19/vgg19.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
 add_test (NAME vgg19-bn
-	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19-bn/vgg19-bn//vgg19-bn.onnx vgg19-bn_out
+	COMMAND ${ONNX_EXEC_DIR}/onnx_dl_test  ${ONNX_MODELS_DIR}/vgg19-bn/vgg19-bn//vgg19-bn.onnx   ${ONNX_MODELS_DIR}/images/tflite_quant/cat224ui8tf.npy
 )
