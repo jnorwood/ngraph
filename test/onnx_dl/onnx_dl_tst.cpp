@@ -96,11 +96,7 @@ int load_onnx(int argc, char** argv)
         throw ngraph::ngraph_error("expecting fp32 image type");
     }
     auto image_shape =  parms.at(0)->get_shape();
-    int shape_dim = image_shape.size();
-    unsigned long image_size = 1;
-    for (int i = 0; i < shape_dim; i++){
-        image_size *= image_shape[i] ; 
-    }
+    auto image_size = shape_size(image_shape);
 
     if (image_shape[3] != 224){
       printf("tst:%s, image_dim=%ld\n", argv[1], image_shape[3]);
@@ -129,11 +125,8 @@ int load_onnx(int argc, char** argv)
         throw ngraph::ngraph_error("expecting fp32 results type");
     }
     auto results_shape =  results.at(0)->get_shape();
-    int results_dim = results_shape.size();
-    unsigned long results_size = 1;
-    for (int i = 0; i < results_dim; i++){
-        results_size *= results_shape[i] ; 
-    }
+    auto results_size = shape_size(results_shape);
+
     Outputs expected_outputs{{}};
     expected_outputs[0].assign(results_size,0.5);
     
