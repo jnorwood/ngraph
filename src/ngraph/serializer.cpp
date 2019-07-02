@@ -55,6 +55,7 @@
 #include "ngraph/op/experimental/compiled_kernel.hpp"
 #include "ngraph/op/experimental/dyn_broadcast.hpp"
 #include "ngraph/op/experimental/dyn_pad.hpp"
+#include "ngraph/op/experimental/dyn_replace_slice.hpp"
 #include "ngraph/op/experimental/dyn_reshape.hpp"
 #include "ngraph/op/experimental/dyn_slice.hpp"
 #include "ngraph/op/experimental/generate_mask.hpp"
@@ -79,12 +80,14 @@
 #include "ngraph/op/fused/grn.hpp"
 #include "ngraph/op/fused/group_conv.hpp"
 #include "ngraph/op/fused/group_conv_transpose.hpp"
+#include "ngraph/op/fused/gru_cell.hpp"
 #include "ngraph/op/fused/hard_sigmoid.hpp"
 #include "ngraph/op/fused/leaky_relu.hpp"
 #include "ngraph/op/fused/lstm_cell.hpp"
 #include "ngraph/op/fused/mvn.hpp"
 #include "ngraph/op/fused/normalize.hpp"
 #include "ngraph/op/fused/prelu.hpp"
+#include "ngraph/op/fused/rnn_cell.hpp"
 #include "ngraph/op/fused/scale_shift.hpp"
 #include "ngraph/op/fused/shuffle_channels.hpp"
 #include "ngraph/op/fused/space_to_depth.hpp"
@@ -118,6 +121,7 @@
 #include "ngraph/op/power.hpp"
 #include "ngraph/op/product.hpp"
 #include "ngraph/op/quantize.hpp"
+#include "ngraph/op/recv.hpp"
 #include "ngraph/op/relu.hpp"
 #include "ngraph/op/replace_slice.hpp"
 #include "ngraph/op/reshape.hpp"
@@ -127,6 +131,7 @@
 #include "ngraph/op/scatter_add.hpp"
 #include "ngraph/op/scatter_nd_add.hpp"
 #include "ngraph/op/select.hpp"
+#include "ngraph/op/send.hpp"
 #include "ngraph/op/sigmoid.hpp"
 #include "ngraph/op/sign.hpp"
 #include "ngraph/op/sin.hpp"
@@ -1126,6 +1131,25 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
             node = make_shared<op::DynPad>(args[0], args[1], args[2], args[3]);
             break;
         }
+        case OP_TYPEID::DynReplaceSlice:
+        {
+            auto lower_bounds_mask = node_js.at("lower_bounds_mask").get<set<size_t>>();
+            auto upper_bounds_mask = node_js.at("upper_bounds_mask").get<set<size_t>>();
+            auto new_axis = node_js.at("new_axis").get<set<size_t>>();
+            auto shrink_axis = node_js.at("shrink_axis").get<set<size_t>>();
+            auto ellipsis_mask = node_js.at("ellipsis_mask").get<set<size_t>>();
+            node = make_shared<op::DynReplaceSlice>(args[0],
+                                                    args[1],
+                                                    args[2],
+                                                    args[3],
+                                                    args[4],
+                                                    lower_bounds_mask,
+                                                    upper_bounds_mask,
+                                                    new_axis,
+                                                    shrink_axis,
+                                                    ellipsis_mask);
+            break;
+        }
         case OP_TYPEID::DynReshape:
         {
             node = make_shared<op::DynReshape>(args[0], args[1]);
@@ -1133,7 +1157,20 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
         }
         case OP_TYPEID::DynSlice:
         {
-            node = make_shared<op::DynSlice>(args[0], args[1], args[2], args[3]);
+            auto lower_bounds_mask = node_js.at("lower_bounds_mask").get<set<size_t>>();
+            auto upper_bounds_mask = node_js.at("upper_bounds_mask").get<set<size_t>>();
+            auto new_axis = node_js.at("new_axis").get<set<size_t>>();
+            auto shrink_axis = node_js.at("shrink_axis").get<set<size_t>>();
+            auto ellipsis_mask = node_js.at("ellipsis_mask").get<set<size_t>>();
+            node = make_shared<op::DynSlice>(args[0],
+                                             args[1],
+                                             args[2],
+                                             args[3],
+                                             lower_bounds_mask,
+                                             upper_bounds_mask,
+                                             new_axis,
+                                             shrink_axis,
+                                             ellipsis_mask);
             break;
         }
         case OP_TYPEID::Elu:
@@ -1228,13 +1265,6 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
             node = make_shared<op::GRN>(args[0], bias);
             break;
         }
-        case OP_TYPEID::HardSigmoid:
-        {
-            auto alpha = node_js.at("alpha").get<float>();
-            auto beta = node_js.at("beta").get<float>();
-            node = make_shared<op::HardSigmoid>(args[0], alpha, beta);
-            break;
-        }
         case OP_TYPEID::GroupConvolution:
         {
             auto window_movement_strides =
@@ -1281,6 +1311,35 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
                                                               output_shape);
             break;
         }
+        case OP_TYPEID::GRUCell:
+        {
+            auto hidden_size = node_js.at("hidden_size").get<size_t>();
+            auto clip = node_js.at("clip").get<float>();
+            auto activations = node_js.at("activations").get<vector<string>>();
+            auto activation_alpha = node_js.at("activation_alpha").get<vector<float>>();
+            auto activation_beta = node_js.at("activation_beta").get<vector<float>>();
+            auto linear_before_reset = node_js.at("linear_before_reset").get<bool>();
+            node = make_shared<op::GRUCell>(args[0],
+                                            args[1],
+                                            args[2],
+                                            args[3],
+                                            hidden_size,
+                                            args[4],
+                                            activations,
+                                            activation_alpha,
+                                            activation_beta,
+                                            clip,
+                                            linear_before_reset);
+            break;
+        }
+        case OP_TYPEID::HardSigmoid:
+        {
+            auto alpha = node_js.at("alpha").get<float>();
+            auto beta = node_js.at("beta").get<float>();
+            node = make_shared<op::HardSigmoid>(args[0], alpha, beta);
+            break;
+        }
+
         case OP_TYPEID::LeakyRelu:
         {
             node = make_shared<op::LeakyRelu>(args[0], args[1]);
@@ -1605,6 +1664,12 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
 
             break;
         }
+        case OP_TYPEID::Recv:
+        {
+            auto src_id = node_js.at("source_id").get<size_t>();
+            node = make_shared<op::Recv>(args[0], src_id);
+            break;
+        }
         case OP_TYPEID::Range:
         {
             node = make_shared<op::Range>(args[0], args[1], args[2]);
@@ -1656,6 +1721,25 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
             node = make_shared<op::ReverseSequence>(args[0], args[1], batch_axis, sequence_axis);
             break;
         }
+        case OP_TYPEID::RNNCell:
+        {
+            auto hidden_size = node_js.at("hidden_size").get<size_t>();
+            auto clip = node_js.at("clip").get<float>();
+            auto activations = node_js.at("activations").get<vector<string>>();
+            auto activation_alpha = node_js.at("activation_alpha").get<vector<float>>();
+            auto activation_beta = node_js.at("activation_beta").get<vector<float>>();
+            node = make_shared<op::RNNCell>(args[0],
+                                            args[1],
+                                            args[2],
+                                            args[3],
+                                            hidden_size,
+                                            args[4],
+                                            activations,
+                                            activation_alpha,
+                                            activation_beta,
+                                            clip);
+            break;
+        }
         case OP_TYPEID::ScalarConstantLike:
         {
             double value = node_js.at("value").get<double>();
@@ -1680,6 +1764,12 @@ shared_ptr<Node> JSONDeserializer::deserialize_node(json node_js)
         case OP_TYPEID::Select:
         {
             node = make_shared<op::Select>(args[0], args[1], args[2]);
+            break;
+        }
+        case OP_TYPEID::Send:
+        {
+            auto dest_id = node_js.at("dest_id").get<size_t>();
+            node = make_shared<op::Send>(args[0], dest_id);
             break;
         }
         case OP_TYPEID::ShapeOf:
@@ -2240,9 +2330,27 @@ json JSONSerializer::serialize_node(const Node& n)
     }
     case OP_TYPEID::DynPad: { break;
     }
+    case OP_TYPEID::DynReplaceSlice:
+    {
+        auto tmp = dynamic_cast<const op::DynReplaceSlice*>(&n);
+        node["lower_bounds_mask"] = tmp->get_lower_bounds_mask();
+        node["upper_bounds_mask"] = tmp->get_upper_bounds_mask();
+        node["new_axis"] = tmp->get_new_axis();
+        node["shrink_axis"] = tmp->get_shrink_axis();
+        node["ellipsis_mask"] = tmp->get_ellipsis_mask();
+        break;
+    }
     case OP_TYPEID::DynReshape: { break;
     }
-    case OP_TYPEID::DynSlice: { break;
+    case OP_TYPEID::DynSlice:
+    {
+        auto tmp = dynamic_cast<const op::DynSlice*>(&n);
+        node["lower_bounds_mask"] = tmp->get_lower_bounds_mask();
+        node["upper_bounds_mask"] = tmp->get_upper_bounds_mask();
+        node["new_axis"] = tmp->get_new_axis();
+        node["shrink_axis"] = tmp->get_shrink_axis();
+        node["ellipsis_mask"] = tmp->get_ellipsis_mask();
+        break;
     }
     case OP_TYPEID::Elu: { break;
     }
@@ -2326,11 +2434,15 @@ json JSONSerializer::serialize_node(const Node& n)
         node["bias"] = tmp->get_bias();
         break;
     }
-    case OP_TYPEID::HardSigmoid:
+    case OP_TYPEID::GRUCell:
     {
-        auto tmp = dynamic_cast<const op::HardSigmoid*>(&n);
-        node["alpha"] = tmp->get_alpha();
-        node["beta"] = tmp->get_beta();
+        auto tmp = dynamic_cast<const op::GRUCell*>(&n);
+        node["hidden_size"] = tmp->get_hidden_size();
+        node["clip"] = tmp->get_clip();
+        node["activations"] = tmp->get_activations();
+        node["activation_alpha"] = tmp->get_activation_alpha();
+        node["activation_beta"] = tmp->get_activation_beta();
+        node["linear_before_reset"] = tmp->get_linear_before_reset();
         break;
     }
     case OP_TYPEID::GroupConvolution:
@@ -2356,6 +2468,13 @@ json JSONSerializer::serialize_node(const Node& n)
         node["groups"] = tmp->get_groups();
         node["pad_type"] = tmp->get_pad_type();
         node["output_shape"] = tmp->get_output_shape();
+        break;
+    }
+    case OP_TYPEID::HardSigmoid:
+    {
+        auto tmp = dynamic_cast<const op::HardSigmoid*>(&n);
+        node["alpha"] = tmp->get_alpha();
+        node["beta"] = tmp->get_beta();
         break;
     }
     case OP_TYPEID::LeakyRelu: { break;
@@ -2602,6 +2721,12 @@ json JSONSerializer::serialize_node(const Node& n)
         node["padding_above"] = tmp->get_padding_above();
         break;
     }
+    case OP_TYPEID::Recv:
+    {
+        auto tmp = dynamic_cast<const op::Recv*>(&n);
+        node["source_id"] = tmp->get_src_id();
+        break;
+    }
     case OP_TYPEID::Range: { break;
     }
     case OP_TYPEID::Relu: { break;
@@ -2642,6 +2767,16 @@ json JSONSerializer::serialize_node(const Node& n)
         node["sequence_axis"] = tmp->get_sequence_axis();
         break;
     }
+    case OP_TYPEID::RNNCell:
+    {
+        auto tmp = dynamic_cast<const op::RNNCell*>(&n);
+        node["hidden_size"] = tmp->get_hidden_size();
+        node["clip"] = tmp->get_clip();
+        node["activations"] = tmp->get_activations();
+        node["activation_alpha"] = tmp->get_activation_alpha();
+        node["activation_beta"] = tmp->get_activation_beta();
+        break;
+    }
     case OP_TYPEID::ScalarConstantLike:
     {
         auto tmp = dynamic_cast<const op::ScalarConstantLikeBase*>(&n);
@@ -2657,6 +2792,12 @@ json JSONSerializer::serialize_node(const Node& n)
     case OP_TYPEID::ScatterNDAdd: { break;
     }
     case OP_TYPEID::Select: { break;
+    }
+    case OP_TYPEID::Send:
+    {
+        auto tmp = dynamic_cast<const op::Send*>(&n);
+        node["dest_id"] = tmp->get_dest_id();
+        break;
     }
     case OP_TYPEID::ShapeOf: { break;
     }
