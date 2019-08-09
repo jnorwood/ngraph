@@ -74,6 +74,7 @@ from _pyngraph.op import Dot
 from _pyngraph.op import Elu
 from _pyngraph.op import Equal
 from _pyngraph.op import Exp
+from _pyngraph.op import FakeQuantize
 from _pyngraph.op import Floor
 from _pyngraph.op import Gelu
 from _pyngraph.op import Gemm
@@ -119,3 +120,4 @@ from _pyngraph.op import Sum
 from _pyngraph.op import Tan
 from _pyngraph.op import Tanh
 from _pyngraph.op import TopK
+from _pyngraph.op import Unsqueeze

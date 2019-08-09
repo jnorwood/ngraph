@@ -54,6 +54,7 @@ void regmodule_pyngraph_op(py::module m_op)
     regclass_pyngraph_op_Elu(m_op);
     regclass_pyngraph_op_Equal(m_op);
     regclass_pyngraph_op_Exp(m_op);
+    regclass_pyngraph_op_FakeQuantize(m_op);
     regclass_pyngraph_op_Floor(m_op);
     regclass_pyngraph_op_Gelu(m_op);
     regclass_pyngraph_op_Gemm(m_op);
@@ -100,4 +101,5 @@ void regmodule_pyngraph_op(py::module m_op)
     regclass_pyngraph_op_Tanh(m_op);
     regclass_pyngraph_op_TopK(m_op);
     regclass_pyngraph_op_Result(m_op);
+    regclass_pyngraph_op_Unsqueeze(m_op);
 }
