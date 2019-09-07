@@ -29,6 +29,11 @@ endif()
 
 message(STATUS "unit tests enabled")
 
+if (NGRAPH_MLIR_ENABLE)
+    add_subdirectory(mlir)
+    message(STATUS "MLIR LIT tests enabled")
+endif()
+
 if(LINUX)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 endif()
@@ -69,6 +74,7 @@ set(SRC
     node_input_output.cpp
     nop_elimination.cpp
     op.cpp
+    opset_pass/softmax_opset_pass.cpp
     partial_shape.cpp
     pass.cpp
     pass_liveness.cpp
@@ -77,6 +83,7 @@ set(SRC
     pass_shape_relevance.cpp
     pattern.cpp
     provenance.cpp
+    replace_node.cpp
     reshape_elimination.cpp
     reshape_sinking.cpp
     shape.cpp
@@ -118,6 +125,7 @@ set(SRC
     type_prop/index_reduction.cpp
     type_prop/lrn.cpp
     type_prop/lstm_cell.cpp
+    type_prop/matmul.cpp
     type_prop/max_pool.cpp
     type_prop/mvn.cpp
     type_prop/normalize.cpp
@@ -187,11 +195,6 @@ if (NGRAPH_CPU_ENABLE)
         list(APPEND SRC halide.cpp)
     endif()
     set(ACTIVE_BACKEND_LIST ${ACTIVE_BACKEND_LIST} CPU)
-endif()
-
-if(NGRAPH_GPU_ENABLE)
-    list(APPEND SRC gpu_test.cpp gpu_fusion.cpp)
-    set(ACTIVE_BACKEND_LIST ${ACTIVE_BACKEND_LIST} GPU)
 endif()
 
 if (NGRAPH_INTELGPU_ENABLE)
@@ -431,10 +434,6 @@ endif()
 if (NGRAPH_INTERPRETER_ENABLE)
     target_compile_definitions(unit-test PRIVATE NGRAPH_INTERPRETER_ENABLE)
     target_link_libraries(unit-test PRIVATE interpreter_backend)
-endif()
-
-if (NGRAPH_GPU_ENABLE)
-    target_link_libraries(unit-test PRIVATE gpu_backend)
 endif()
 
 if (NGRAPH_NOP_ENABLE)
