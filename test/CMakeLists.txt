@@ -195,6 +195,7 @@ set_source_files_properties(includes.cpp PROPERTIES COMPILE_DEFINITIONS
 if (NGRAPH_UNIT_TEST_OPENVINO_ENABLE)
     message(STATUS "NGRAPH_UNIT_TEST_OPENVINO_ENABLE = TRUE")
     add_definitions(-DNGRAPH_UNIT_TEST_OPENVINO_ENABLE)
+    endif()
 
 if (NGRAPH_CPU_ENABLE)
     list(APPEND SRC core_fusion.cpp builder_quantization.cpp)
