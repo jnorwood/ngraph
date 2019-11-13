@@ -613,7 +613,7 @@ if (NGRAPH_MLIR_ENABLE)
     target_include_directories(unit-test PRIVATE ${CMAKE_BINARY_DIR}/src/contrib/mlir)
 endif()
 
-#if (0) 
+if (0) 
 ############### old head
 add_custom_target(check
     DEPENDS
@@ -696,8 +696,7 @@ if (NGRAPH_ONNXIFI_ENABLE)
     target_link_libraries(onnx_dl_test PRIVATE onnxifi-ngraph)
 endif()
 
-
-else()
+endif()
 ############## end of old head , start of master =======
 if (NOT NGRAPH_UNIT_TEST_OPENVINO_ENABLE)
     # If all the runtime libraries are installed into one location, that will make life easier.
@@ -720,5 +719,3 @@ if (NOT NGRAPH_UNIT_TEST_OPENVINO_ENABLE)
         unit-test-check
     )
 endif()
-endif()
-########### end of master 
