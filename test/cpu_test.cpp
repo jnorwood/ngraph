@@ -24,6 +24,7 @@
 #include "gtest/gtest.h"
 #include "misc.hpp"
 #include "ngraph/autodiff/adjoints.hpp"
+#include "ngraph/env_util.hpp"
 #include "ngraph/file_util.hpp"
 #include "ngraph/graph_util.hpp"
 #include "ngraph/log.hpp"
@@ -120,7 +121,6 @@ TEST(cpu_test, trivial_in_place_relu)
               add->output(0).get_tensor().get_pool_offset());
 }
 
-#ifndef NGRAPH_HALIDE
 TEST(cpu_test, MLIR_DISABLE_TEST(trivial_in_place_relu_fail))
 {
     auto A = make_shared<op::Parameter>(element::f32, Shape{16, 1});
@@ -134,14 +134,13 @@ TEST(cpu_test, MLIR_DISABLE_TEST(trivial_in_place_relu_fail))
     ASSERT_NE(relu->output(0).get_tensor().get_pool_offset(),
               add->output(0).get_tensor().get_pool_offset());
 }
-#endif
 
 #ifdef NGRAPH_TBB_ENABLE
 TEST(cpu_test, abc_tbb)
 {
     // Force TBB flow graph generation in the CPU backend
     // This has no effect on other backends
-    bool use_tbb = (getenv("NGRAPH_CPU_USE_TBB") != nullptr);
+    bool use_tbb = getenv_bool("NGRAPH_CPU_USE_TBB");
     if (!use_tbb)
     {
         set_environment("NGRAPH_CPU_USE_TBB", "1", 1);
@@ -970,14 +969,7 @@ constexpr int tolerance = FLOAT_MANTISSA_BITS - three_quarters_of_available_bits
 
 bool static is_codegen_mode()
 {
-    static bool codegen_set = false;
-    static bool codegen_mode = false;
-    if (!codegen_set)
-    {
-        const char* ngraph_codegen = std::getenv("NGRAPH_CODEGEN");
-        codegen_mode = (ngraph_codegen != nullptr) && std::string(ngraph_codegen) != "0";
-        codegen_set = true;
-    }
+    static bool codegen_mode = getenv_bool("NGRAPH_CODEGEN");
     return codegen_mode;
 }
 
